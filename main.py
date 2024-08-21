@@ -48,7 +48,11 @@ def main():
                     new_asteroid.split()
                     ui_manager.score += 1                    
                     
-            if new_asteroid.check_collision(new_player) and new_player.immunity_timer <= 0:
+            if (
+                new_asteroid.check_collision(new_player) 
+                and new_player.immunity_timer <= 0 
+                and new_asteroid.radius > ASTEROID_MIN_RADIUS
+                ):
                 if ui_manager.lives > 0:
                     ui_manager.lives -= 1
                     new_player.respawn()
