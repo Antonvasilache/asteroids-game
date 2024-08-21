@@ -3,12 +3,14 @@ import player
 import asteroid
 import asteroidfield
 import shot
+import UIManager
 from constants import *
 
 def main():
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     clock = pygame.time.Clock()
+    
     dt = 0
     
     x = SCREEN_WIDTH / 2
@@ -27,6 +29,9 @@ def main():
     shots = pygame.sprite.Group()
     shot.Shot.containers = (updatable, drawable, shots)
     
+    UIManager.UIManager.containers = drawable
+    ui_manager = UIManager.UIManager()
+    
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -41,10 +46,15 @@ def main():
                 if new_shot.check_collision(new_asteroid):
                     new_shot.kill()
                     new_asteroid.split()
+                    ui_manager.score += 1                    
                     
-            if new_asteroid.check_collision(new_player):
-                print("Game over!")
-                return
+            if new_asteroid.check_collision(new_player) and new_player.immunity_timer <= 0:
+                if ui_manager.lives > 0:
+                    ui_manager.lives -= 1
+                    new_player.respawn()
+                else:                                    
+                    print("Game over!")
+                    return
                 
         for item in drawable:
             item.draw(screen)
