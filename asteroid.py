@@ -1,6 +1,7 @@
 import circleshape
 import pygame
 import random
+import math
 from constants import *
 
 class Asteroid(circleshape.CircleShape):
@@ -8,10 +9,31 @@ class Asteroid(circleshape.CircleShape):
         super().__init__(x, y, radius)
         self.velocity = 0
         self.particle_timer = 0
+        self.vertices = self.polygon()
         
-    def draw(self, screen):
+    def polygon(self):
+       number_of_edges = random.randint(5, 11) 
+       angle_step = 360 / number_of_edges
+       vertices = []
+       
+       for i in range(number_of_edges):
+           angle = i * angle_step
+           x = self.radius * math.cos(math.radians(angle))
+           y = self.radius * math.sin(math.radians(angle))
+           vertices.append(pygame.Vector2(x,y))
+       
+       for i in range(number_of_edges):
+           perturb_x = random.uniform(-self.radius * 0.4, self.radius * 0.4)
+           perturb_y = random.uniform(-self.radius * 0.4, self.radius * 0.4)
+           vertices[i] += pygame.Vector2(perturb_x, perturb_y)      
+           
+       return vertices
+ 
+    def draw(self, screen):           
         if self.particle_timer == 0 or (self.particle_timer > 0.1 and int(pygame.time.get_ticks() * 0.005) % 2 == 0):
-            pygame.draw.circle(screen, (255,255,255), self.position, self.radius, 2)
+            vertices = [vertex + self.position for vertex in self.vertices]
+            pygame.draw.polygon(screen, (255,255,255), vertices, 2)           
+  
         
     def update(self, dt):
         self.position += self.velocity * dt
