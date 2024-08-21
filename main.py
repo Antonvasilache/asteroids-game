@@ -4,6 +4,8 @@ import asteroid
 import asteroidfield
 import shot
 import UIManager
+import powerup
+import powerupfield
 from constants import *
 
 def main():
@@ -29,6 +31,11 @@ def main():
     shots = pygame.sprite.Group()
     shot.Shot.containers = (updatable, drawable, shots)
     
+    powerups = pygame.sprite.Group()
+    powerup.PowerUp.containers = (powerups, updatable, drawable)
+    powerupfield.PowerUpField.containers = updatable
+    powerup_field = powerupfield.PowerUpField()    
+    
     UIManager.UIManager.containers = drawable
     ui_manager = UIManager.UIManager()
     
@@ -40,6 +47,18 @@ def main():
         screen.fill((0,0,0))
         for item in updatable:
             item.update(dt)
+            
+        for new_powerup in powerups:
+            if new_powerup.check_collision(new_player):
+                if new_powerup.power_up_type == 'shield':
+                    new_player.shield_active = True
+                    new_powerup.kill()
+                    
+                if new_powerup.power_up_type == 'speed':
+                    new_player.speed_timer = 3
+                    new_player.max_thrust = 3
+                    new_powerup.kill()
+                    
             
         for new_asteroid in asteroids:
             for new_shot in shots:
@@ -53,12 +72,16 @@ def main():
                 and new_player.immunity_timer <= 0 
                 and new_asteroid.radius >= ASTEROID_MIN_RADIUS
                 ):
-                if ui_manager.lives > 1:
-                    ui_manager.lives -= 1
-                    new_player.respawn()
-                else:                                    
-                    print("Game over!")
-                    return
+                if new_player.shield_active:
+                    new_player.shield_active = False
+                    new_player.immunity_timer = 1.5
+                else:
+                    if ui_manager.lives > 1:
+                        ui_manager.lives -= 1
+                        new_player.respawn()
+                    else:                                    
+                        print("Game over!")
+                        return
                 
         for item in drawable:
             item.draw(screen)

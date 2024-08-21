@@ -15,7 +15,9 @@ class Player(circleshape.CircleShape):
         self.thrust = 0
         self.max_thrust = 1.5
         self.acceleration_rate = 0.05
-        self.deceleration_rate = 0.02        
+        self.deceleration_rate = 0.02
+        self.shield_active = False
+        self.speed_timer = 0                
     
     def triangle(self):
         forward = pygame.Vector2(0, 1).rotate(self.rotation)
@@ -28,6 +30,9 @@ class Player(circleshape.CircleShape):
     def draw(self, screen):
         if self.immunity_timer <= 0 or int(pygame.time.get_ticks() * 0.005) % 2 == 0:
             pygame.draw.polygon(screen, (255, 255, 255), self.triangle(), 2)
+            
+        if self.shield_active:
+            pygame.draw.circle(screen, (255,255,255), (int(self.position.x), int(self.position.y)), self.radius + 10, 2)
         
     def rotate(self, dt):
         self.rotation += PLAYER_TURN_SPEED * dt
@@ -67,6 +72,11 @@ class Player(circleshape.CircleShape):
         if self.immunity_timer > 0:
             self.immunity_timer -= dt    
         
+        if self.speed_timer > 0:
+            self.speed_timer -= dt
+        else:
+            self.max_thrust = 1.5
+            
         self.shot_timer -= dt
             
     def move(self, dt):
