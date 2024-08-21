@@ -15,6 +15,17 @@ class Asteroid(circleshape.CircleShape):
         
     def update(self, dt):
         self.position += self.velocity * dt
+        
+        if self.position.x > SCREEN_WIDTH:
+            self.position.x = 0            
+        elif self.position.x < 0:
+            self.position.x = SCREEN_WIDTH
+            
+        if self.position.y > SCREEN_HEIGHT:
+            self.position.y = 0            
+        elif self.position.y < 0:
+            self.position.y = SCREEN_HEIGHT
+        
         if self.particle_timer > 0.1:
             self.particle_timer -= dt
         

@@ -51,16 +51,22 @@ class Player(circleshape.CircleShape):
             self.shoot()
             self.shot_timer = PLAYER_SHOT_COOLDOWN
         
-    def update(self, dt):
-        for event in pygame.event.get():
-            if event.type == pygame.KEYUP:
-                if event.key == pygame.K_w: 
-                    print("W key released")                      
+    def update(self, dt):  
+        self.handle_input(dt)  
         
+        if self.position.x > SCREEN_WIDTH:
+            self.position.x = 0            
+        elif self.position.x < 0:
+            self.position.x = SCREEN_WIDTH
+            
+        if self.position.y > SCREEN_HEIGHT:
+            self.position.y = 0            
+        elif self.position.y < 0:
+            self.position.y = SCREEN_HEIGHT
+            
         if self.immunity_timer > 0:
             self.immunity_timer -= dt    
-          
-        self.handle_input(dt)  
+        
         self.shot_timer -= dt
             
     def move(self, dt):
