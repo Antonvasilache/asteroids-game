@@ -11,7 +11,7 @@ from constants import *
 def main():
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    clock = pygame.time.Clock()
+    clock = pygame.time.Clock() 
     
     dt = 0
     
@@ -39,10 +39,27 @@ def main():
     UIManager.UIManager.containers = drawable
     ui_manager = UIManager.UIManager()
     
+    def reset_game():   
+        updatable.empty()
+        drawable.empty()
+        asteroids.empty()
+        shots.empty()
+        updatable.empty()
+        
+        new_player = player.Player(x, y)
+        asteroid_field = asteroidfield.AsteroidField()
+        powerup_field = powerupfield.PowerUpField()
+        ui_manager = UIManager.UIManager()
+        
+        return new_player, asteroid_field, powerup_field, ui_manager
+    
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return
+            if event.type == pygame.MOUSEBUTTONDOWN and ui_manager.game_over:
+                if ui_manager.check_new_game_click(event.pos):
+                    new_player, asteroid_field, powerup_field, ui_manager = reset_game()
         
         screen.fill((0,0,0))
         for item in updatable:
@@ -80,11 +97,12 @@ def main():
                         ui_manager.lives -= 1
                         new_player.respawn()
                     else:                                    
-                        print("Game over!")
-                        return
+                        ui_manager.game_over = True
                 
         for item in drawable:
             item.draw(screen)
+            
+        
             
         pygame.display.flip()
         
